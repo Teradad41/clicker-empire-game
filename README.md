@@ -1,5 +1,4 @@
 # clicker_empire_game
-## project3
 
 ## サイトURL
 https://teradad41.github.io/clicker_empire_game/
