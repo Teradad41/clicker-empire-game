@@ -1,0 +1,29 @@
+body {
+    font-family: Futura!important;
+    letter-spacing: 0.03em!important;
+}
+
+.bg-blue {
+    background-color: rgb(50, 69, 109);
+}
+
+.userInfoBorder {
+    border: solid 3px #343a40;
+}
+
+.flowHeight {
+    height: 75%;
+}
+
+.burger-hover:hover {
+    opacity: 0.7;
+}
+
+.item-hover:hover {
+    border: solid 2px yellow;
+}
+
+.goBack-hover:hover {
+    opacity: 0.7;
+    color: #007bff;
+}
