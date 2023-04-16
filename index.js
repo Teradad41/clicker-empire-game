@@ -14,6 +14,7 @@ const config = {
     burgerInfo : document.getElementById("burgerInfo"),
     userInfo : document.getElementById("userInfo"),
     itemInfo : document.getElementById("displayItems"),
+    btnSec : document.getElementById("btnSec"),
 }
 
 class User {
@@ -25,7 +26,6 @@ class User {
         this.clickCount = 0;
         this.incomePerClick = 25;
         this.incomePerSeconds = 0;
-        this.stock = 0;
         this.items = items
     }
 
@@ -75,7 +75,12 @@ class Item {
     }
 }
 
-function initializeUserAccount(userName) {
+function initializeUserAccount() {
+    config.burgerInfo.innerHTML = "";
+    config.userInfo.innerHTML = "";
+    config.itemInfo.innerHTML = "";
+    config.btnSec.innerHTML = "";
+
     const items = [
         new Item("Flip Machine", "ability", "https://cdn.pixabay.com/photo/2019/06/30/20/09/grill-4308709_960_720.png", 15000, "500", "click", 25, 0, 0), 
         new Item("ETF Stock", "investment", "https://cdn.pixabay.com/photo/2016/03/31/20/51/chart-1296049_960_720.png", 300000, "∞", "sec",0, 0.1, 0), 
@@ -90,14 +95,20 @@ function initializeUserAccount(userName) {
         new Item("Sky Railway", "realEstate", "https://cdn.pixabay.com/photo/2013/07/13/10/21/train-157027_960_720.png", 10000000000000, "1", "sec", 0, 30000000000, 0),
     ];
 
+    let userName = document.getElementById("nameInput").value;
     let userAccount = new User(userName, 20, 0, 50000, items);
+
     console.log(userAccount);
 
     config.burgerInfo.append(createBurgerInfo(userAccount));
     config.userInfo.append(createUserInfo(userAccount));
     config.itemInfo.append(createItemInfo(userAccount, items));
 
-    displayDays(userAccount);
+    const id = setInterval(() => {
+        displayDays(userAccount);
+    }, 1000);
+
+    config.btnSec.append(createBtnSec(userAccount, id));
 }
 
 function createBurgerInfo(userAccount) {
@@ -278,6 +289,41 @@ function createPurchasePage(userAccount, itemObjArr, index) {
     return container;
 }
 
+function createBtnSec(userAccount, id) {
+    let container = document.createElement("div");
+    let btnContainer = document.createElement("div");
+    btnContainer.classList.add("d-flex", "justify-content-center")
+    container.append(btnContainer);
+
+    btnContainer.innerHTML =
+    `
+        <div class="col-5 pl-0">
+            <button class="btn btn-primary col-10" id="resetBtn"><i class="fas fa-rotate-left fa-2x fa-fw"></i><strong>Reset</strong></button>
+        </div>
+        <div class="col-5 pr-0">
+            <button class="btn btn-dark col-10" id="saveBtn"><i class="fas fa-floppy-disk fa-2x fa-fw"></i><strong>Save</strong></button>
+        </div>
+    `;
+
+    // resetボタン
+    btnContainer.querySelectorAll("#resetBtn")[0].addEventListener("click", function(){
+        let result = confirm("Reset All Data?");
+    
+        if (result) {
+            clearInterval(id);
+            initializeUserAccount();
+        } else return;
+    });
+
+    // saveボタン
+    btnContainer.querySelectorAll("#saveBtn")[0].addEventListener("click", function(){
+        // localStorage.setItem("user-data", );
+        alert("Saved your data. Please put the same name when you login.");
+    });
+
+    return container;
+}
+
 function billSumtation(itemObj, quantity) {
     let res = itemObj.price * parseInt(quantity);
 
@@ -310,50 +356,42 @@ function actionWhenPerchased(userAccount, itemObj, userPurchased) {
     config.burgerInfo.append(createBurgerInfo(userAccount));
 }
 
-function switchPage(page1, page2) {
-    displayNone(page1);
-    displayBlock(page2);
-}
-
 function displayDays(userAccount) {
-    setInterval(() => {
-        userAccount.addDay();
-        userAccount.addMoney(userAccount.incomePerSeconds);
-        if (userAccount.days != 0 && userAccount.days % 365 == 0) {
-            userAccount.increaseAge();
-            config.userInfo.append(createUserInfo(userAccount));
-        } else;
-
-        config.userInfo.innerHTML = "";
+    userAccount.addDay();
+    userAccount.addMoney(userAccount.incomePerSeconds);
+    if (userAccount.days != 0 && userAccount.days % 365 == 0) {
+        userAccount.increaseAge();
         config.userInfo.append(createUserInfo(userAccount));
-    }, 1000);
+    } else;
+
+    config.userInfo.innerHTML = "";
+    config.userInfo.append(createUserInfo(userAccount));
 }
 
 // newボタン
 document.getElementById("newBtn").addEventListener("click", function(){
     let userName = document.getElementById("nameInput").value;
-    
-    if (userName == "") alert("Please put your name");
-    else {
-        initializeUserAccount(userName);
-        switchPage(config.initialPage, config.mainPage);
+    if (!userName) {
+        alert("Please put your name");
+        return false;
+    } else {
+        initializeUserAccount();
+        displayNone(config.initialPage);
+        displayBlock(config.mainPage);
     }
 });
 
 // loginボタン
 document.getElementById("loginBtn").addEventListener("click", function(){
-    alert("This feature has not yet been implemented.");
-});
-
-// resetボタン
-document.getElementById("resetBtn").addEventListener("click", function(){
-    let result = confirm("Reset All Data?");
+    let userName = document.getElementById("nameInput").value;
     
-    if (result) location.reload();
-    else return;
-});
+    if (!userName) {
+        alert("Please put your name");
+        return false;
+    } else if (userName === "!") {
+        alert("There is no data");
+        return false;
+    } else {
 
-// saveボタン
-document.getElementById("saveBtn").addEventListener("click", function(){
-    alert("This feature has not yet been implemented.");
+    }
 });
