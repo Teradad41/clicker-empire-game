@@ -18,14 +18,14 @@ const config = {
 }
 
 class User {
-    constructor(userName, age, days, money, items) {
+    constructor(userName, age, days, money, clickCount, incomePerClick, incomePerSeconds, items) {
         this.userName = userName;
         this.age = age;
         this.days = days;
         this.money = money;
-        this.clickCount = 0;
-        this.incomePerClick = 25;
-        this.incomePerSeconds = 0;
+        this.clickCount = clickCount;
+        this.incomePerClick = incomePerClick;
+        this.incomePerSeconds = incomePerSeconds;
         this.items = items
     }
 
@@ -81,7 +81,7 @@ function initializeUserAccount() {
     config.itemInfo.innerHTML = "";
     config.btnSec.innerHTML = "";
 
-    const items = [
+    let items = [
         new Item("Flip Machine", "ability", "https://cdn.pixabay.com/photo/2019/06/30/20/09/grill-4308709_960_720.png", 15000, "500", "click", 25, 0, 0), 
         new Item("ETF Stock", "investment", "https://cdn.pixabay.com/photo/2016/03/31/20/51/chart-1296049_960_720.png", 300000, "∞", "sec",0, 0.1, 0), 
         new Item("ETF Bonds", "investment", "https://cdn.pixabay.com/photo/2016/03/31/20/51/chart-1296049_960_720.png", 300000, "∞", "sec", 0, 0.07, 0), 
@@ -96,18 +96,15 @@ function initializeUserAccount() {
     ];
 
     let userName = document.getElementById("nameInput").value;
-    let userAccount = new User(userName, 20, 0, 50000, items);
-
-    console.log(userAccount);
-
-    config.burgerInfo.append(createBurgerInfo(userAccount));
-    config.userInfo.append(createUserInfo(userAccount));
-    config.itemInfo.append(createItemInfo(userAccount, items));
-
+    let userAccount = new User(userName, 20, 0, 50000, 0, 25, 0, items);
+    
     const id = setInterval(() => {
         displayDays(userAccount);
     }, 1000);
 
+    config.burgerInfo.append(createBurgerInfo(userAccount));
+    config.userInfo.append(createUserInfo(userAccount));
+    config.itemInfo.append(createItemInfo(userAccount, items));
     config.btnSec.append(createBtnSec(userAccount, id));
 }
 
@@ -317,8 +314,14 @@ function createBtnSec(userAccount, id) {
 
     // saveボタン
     btnContainer.querySelectorAll("#saveBtn")[0].addEventListener("click", function(){
-        // localStorage.setItem("user-data", );
         alert("Saved your data. Please put the same name when you login.");
+        clearInterval(id);
+
+        let jsonEncoded = JSON.stringify(userAccount);
+        localStorage.setItem("user-data", jsonEncoded);
+
+        switchPages(config.mainPage, config.initialPage);
+        document.getElementById("nameInput").value = "";
     });
 
     return container;
@@ -343,14 +346,8 @@ function actionWhenPerchased(userAccount, itemObj, userPurchased) {
     userAccount.addIncomePerClick(itemObj.incomePerClick * parseInt(userPurchased));
     itemObj.addQuantity(parseInt(userPurchased));
 
-    if (itemObj.itemType === "investment") {
-        userAccount.addIncomePerSeconds(Math.floor(billSumtation(itemObj, userPurchased) * (itemObj.incomePerSeconds / 100)));
-        console.log(userAccount.incomePerSeconds);
-    }
-    else {
-        userAccount.addIncomePerSeconds(itemObj.incomePerSeconds * parseInt(userPurchased));
-        console.log(userAccount.incomePerSeconds);
-    }
+    if (itemObj.itemType === "investment") userAccount.addIncomePerSeconds(Math.floor(billSumtation(itemObj, userPurchased) * (itemObj.incomePerSeconds / 100)));
+    else userAccount.addIncomePerSeconds(itemObj.incomePerSeconds * parseInt(userPurchased));
 
     config.burgerInfo.innerHTML = "";
     config.burgerInfo.append(createBurgerInfo(userAccount));
@@ -368,6 +365,11 @@ function displayDays(userAccount) {
     config.userInfo.append(createUserInfo(userAccount));
 }
 
+function switchPages(page1, page2) {
+    displayNone(page1);
+    displayBlock(page2);
+}
+
 // newボタン
 document.getElementById("newBtn").addEventListener("click", function(){
     let userName = document.getElementById("nameInput").value;
@@ -376,22 +378,48 @@ document.getElementById("newBtn").addEventListener("click", function(){
         return false;
     } else {
         initializeUserAccount();
-        displayNone(config.initialPage);
-        displayBlock(config.mainPage);
+        switchPages(config.initialPage, config.mainPage);
     }
 });
 
 // loginボタン
 document.getElementById("loginBtn").addEventListener("click", function(){
     let userName = document.getElementById("nameInput").value;
+    let jsonDecorded = JSON.parse(localStorage.getItem("user-data"));
     
     if (!userName) {
-        alert("Please put your name");
+        alert("Please put the login name");
         return false;
-    } else if (userName === "!") {
+    } else if (localStorage.getItem("user-data") === null || userName !== jsonDecorded.userName) {
         alert("There is no data");
+        document.getElementById("nameInput").value = "";
         return false;
     } else {
-
+        alert(`Start with user name ${jsonDecorded.userName}`);
+        switchPages(config.initialPage, config.mainPage);
+        restoreLoginUserAccount(jsonDecorded);
     }
 });
+
+function restoreLoginUserAccount(user) {
+    config.burgerInfo.innerHTML = "";
+    config.userInfo.innerHTML = "";
+    config.itemInfo.innerHTML = "";
+    config.btnSec.innerHTML = "";
+
+    let itemObjArr = [];
+    for (let item of user.items) {
+        itemObjArr.push(new Item(item.itemName, item.itemType, item.imgUrl, item.price, item.maxPurchase, item.incomeType, item.incomePerClick, item.incomePerSeconds, item.quantity));
+    }
+
+    let userAccount = new User(user.userName, user.age, user.days, user.money, user.clickCount, user.incomePerClick, user.incomePerSeconds, itemObjArr);
+
+    const id = setInterval(() => {
+        displayDays(userAccount);
+    }, 1000);
+
+    config.burgerInfo.append(createBurgerInfo(userAccount));
+    config.userInfo.append(createUserInfo(userAccount));
+    config.itemInfo.append(createItemInfo(userAccount, itemObjArr));
+    config.btnSec.append(createBtnSec(userAccount, id));
+}
