@@ -254,12 +254,11 @@ function createPurchasePage(userAccount, itemObjArr, index) {
 
     let inputNum = purchasePageContainer.querySelectorAll("#numOfItem")[0];
 
-    // 購入数を入力するinput
+    // 購入額を表示する
     inputNum.addEventListener("change", function(){
         let targetP = purchasePageContainer.querySelectorAll("#totalBillAmount")[0];
-
         targetP.innerHTML = `Total: ¥${billSumtation(itemObj, inputNum.value).toString()}`;
-    })
+    });
 
     // 戻るボタン
     purchasePageContainer.querySelectorAll("#backBtn")[0].addEventListener("click", function(){
@@ -280,11 +279,9 @@ function createPurchasePage(userAccount, itemObjArr, index) {
             if (result) actionWhenPerchased(userAccount, itemObj, userPurchased);
             else return;
         }
-
         purchasePageContainer.innerHTML = "";
         config.itemInfo.append(createItemInfo(userAccount, itemObjArr));
     });
-
 
     container.append(purchasePageContainer);
     return container;
@@ -317,7 +314,7 @@ function createBtnSec(userAccount, id) {
 
     // saveボタン
     btnContainer.querySelectorAll("#saveBtn")[0].addEventListener("click", function(){
-        alert("Saved your data. Please put the same name when you login.");
+        alert(`Saved your data. Please put "${userAccount.userName}" when you login.`);
         clearInterval(id);
 
         let jsonEncoded = JSON.stringify(userAccount);
@@ -371,7 +368,7 @@ function displayDays(userAccount) {
 document.getElementById("newBtn").addEventListener("click", function(){
     let userName = document.getElementById("nameInput").value;
     if (!userName) {
-        alert("Please put your name");
+        alert("Please put your name.");
         return false;
     } else {
         initializeUserAccount();
@@ -385,16 +382,18 @@ document.getElementById("loginBtn").addEventListener("click", function(){
     let jsonDecorded = JSON.parse(localStorage.getItem("user-data"));
     
     if (!userName) {
-        alert("Please put the login name");
+        alert("Please put the login name.");
         return false;
     } else if (localStorage.getItem("user-data") === null || userName !== jsonDecorded.userName) {
-        alert("There is no data");
+        alert("There is no data.");
         document.getElementById("nameInput").value = "";
         return false;
     } else {
-        alert(`Start with user name ${jsonDecorded.userName}`);
-        switchPages(config.initialPage, config.mainPage);
-        restoreLoginUserAccount(jsonDecorded);
+        let result = confirm(`Start with username "${jsonDecorded.userName}" ?`);
+        if (result) {
+            switchPages(config.initialPage, config.mainPage);
+            restoreLoginUserAccount(jsonDecorded);
+        } else return;
     }
 });
 
