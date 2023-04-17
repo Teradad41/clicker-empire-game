@@ -1,7 +1,4 @@
-# clicker_empire_game
-
-## サイトURL
-https://teradad41.github.io/clicker_empire_game/
+# Clicker Empire Game
 
 
 仕事や投資、不動産等でお金を稼ぐ「Clicker Empire Game」というシミュレーションゲームを作成します。ゲームの目的は、一攫千金を目指し、街に帝国を築くことになります。
