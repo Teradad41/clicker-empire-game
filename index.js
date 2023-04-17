@@ -8,6 +8,11 @@ function displayBlock(ele) {
     ele.classList.add("d-block");
 }
 
+function switchPages(page1, page2) {
+    displayNone(page1);
+    displayBlock(page2);
+}
+
 const config = {
     initialPage : document.getElementById("initialPage"),
     mainPage : document.getElementById("mainPage"),
@@ -128,7 +133,6 @@ function createBurgerInfo(userAccount) {
         userAccount.addClickCount();
         userAccount.addMoney(userAccount.incomePerClick);
 
-        // クリック数の更新
         burgerContainer.querySelectorAll("#numOfBurger")[0].innerHTML = `${userAccount.clickCount} Burgers`;
 
         config.userInfo.innerHTML = "";
@@ -142,6 +146,7 @@ function createUserInfo(userAccount) {
     let container = document.createElement("div");
     let userInfoContainer = document.createElement("div");
     userInfoContainer.classList.add("d-flex", "flex-wrap");
+    container.append(userInfoContainer);
 
     userInfoContainer.innerHTML =
     `
@@ -159,7 +164,6 @@ function createUserInfo(userAccount) {
         </div>
     `;
 
-    container.append(userInfoContainer);
     return container;
 }
 
@@ -305,7 +309,6 @@ function createBtnSec(userAccount, id) {
     // resetボタン
     btnContainer.querySelectorAll("#resetBtn")[0].addEventListener("click", function(){
         let result = confirm("Reset All Data?");
-    
         if (result) {
             clearInterval(id);
             initializeUserAccount();
@@ -334,7 +337,6 @@ function billSumtation(itemObj, quantity) {
     else return res;
 }
 
-// ここがまだできてない
 function billSumtationHelper(price, quantity) {
     if (quantity <= 1) return 300000;
     else return billSumtationHelper(price, quantity - 1) + price * 1.1;
@@ -363,11 +365,6 @@ function displayDays(userAccount) {
 
     config.userInfo.innerHTML = "";
     config.userInfo.append(createUserInfo(userAccount));
-}
-
-function switchPages(page1, page2) {
-    displayNone(page1);
-    displayBlock(page2);
 }
 
 // newボタン
