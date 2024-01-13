@@ -19,4 +19,4 @@
 - JavaScript: ゲームのロジックを実装
 
 ## Play
-プレイは[こちら](https://teradad41.github.io/Clicker_Empire_Game/)をクリック
+プレイは[こちら](https://teradad41.github.io/clicker_empire_game/)をクリック
